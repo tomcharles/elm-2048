@@ -2,9 +2,11 @@ module Matrix
     exposing
         ( Matrix
         , init
+        , initUnsafe
         , initWithDefault
         , unwrap
         , rotateRight
+        , rotateLeft
         , row
         , column
         )
@@ -34,6 +36,11 @@ initWithDefault w h default =
     Matrix <|
         List.repeat w
             (List.repeat h default)
+
+
+initUnsafe : List (List a) -> Matrix a
+initUnsafe matrix =
+    Matrix matrix
 
 
 unwrap : Matrix a -> List (List a)
@@ -76,7 +83,16 @@ rotateRight (Matrix matrix) =
                     []
     in
         transpose matrix
+            |> List.map List.reverse
             |> Matrix
+
+
+rotateLeft : Matrix a -> Matrix a
+rotateLeft matrix =
+    matrix
+        |> rotateRight
+        |> rotateRight
+        |> rotateRight
 
 
 row : Int -> Matrix a -> List a

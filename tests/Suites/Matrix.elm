@@ -32,6 +32,18 @@ all =
                         in
                             Expect.equal expectedUnwrapped (unwrap actual)
                 ]
+            , describe "initUnsafe"
+                [ test "it assigns the given array to a matrix" <|
+                    \_ ->
+                        let
+                            expectedUnwrapped =
+                                [ [ 1, 2, 3, 4 ], [ 5, 6, 7, 8 ] ]
+
+                            actual =
+                                initUnsafe expectedUnwrapped
+                        in
+                            Expect.equal expectedUnwrapped (unwrap actual)
+                ]
             , describe "unwrap"
                 [ test "it returns the correct list of lists" <|
                     \_ ->
@@ -54,8 +66,8 @@ all =
                     \_ ->
                         let
                             expectedUnwrapped =
-                                [ [ Just 1, Nothing ]
-                                , [ Just 1, Nothing ]
+                                [ [ Nothing, Just 1 ]
+                                , [ Nothing, Just 1 ]
                                 ]
 
                             actual =
@@ -66,10 +78,10 @@ all =
                     \_ ->
                         let
                             expectedUnwrapped =
-                                [ [ Just 1, Nothing, Just 1, Nothing ]
-                                , [ Just 1, Nothing, Just 1, Nothing ]
-                                , [ Just 1, Nothing, Just 1, Nothing ]
-                                , [ Just 1, Nothing, Just 1, Nothing ]
+                                [ [ Nothing, Just 1, Nothing, Just 1 ]
+                                , [ Nothing, Just 1, Nothing, Just 1 ]
+                                , [ Nothing, Just 1, Nothing, Just 1 ]
+                                , [ Nothing, Just 1, Nothing, Just 1 ]
                                 ]
 
                             actual =
@@ -80,16 +92,28 @@ all =
                     \_ ->
                         let
                             expectedUnwrapped =
-                                [ [ Just 1, Nothing ]
-                                , [ Just 1, Nothing ]
-                                , [ Just 1, Nothing ]
-                                , [ Just 1, Nothing ]
+                                [ [ Nothing, Just 1 ]
+                                , [ Nothing, Just 1 ]
+                                , [ Nothing, Just 1 ]
+                                , [ Nothing, Just 1 ]
                                 ]
 
                             actual =
                                 rotateRight (init 2 4 evensAsJust)
                         in
                             Expect.equal expectedUnwrapped (unwrap actual)
+                ]
+            , describe "rotateLeft"
+                [ test "it rotates a grid that has been rotated right back to where it came from" <|
+                    \_ ->
+                        let
+                            initial =
+                                init 4 4 evensAsJust
+
+                            actual =
+                                rotateLeft <| rotateRight initial
+                        in
+                            Expect.equal (unwrap initial) (unwrap actual)
                 ]
             , describe "row"
                 [ test "it returns the correct row" <|

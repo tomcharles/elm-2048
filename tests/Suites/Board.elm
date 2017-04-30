@@ -110,4 +110,112 @@ all =
                     in
                         Expect.equal expected actual
             ]
+        , describe "rows"
+            [ test "it returns board as a list of lists" <|
+                \_ ->
+                    let
+                        expected =
+                            [ [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            ]
+
+                        actual =
+                            rows Board.init
+                    in
+                        Expect.equal expected actual
+            ]
+        , describe "collapseRight"
+            [ test "it collapses all rows to the right" <|
+                \_ ->
+                    let
+                        expected =
+                            [ [ 0, 0, 0, 2 ]
+                            , [ 0, 0, 0, 4 ]
+                            , [ 0, 0, 0, 8 ]
+                            , [ 0, 0, 0, 16 ]
+                            ]
+
+                        beforeCollapse =
+                            [ [ 0, 2, 0, 0 ]
+                            , [ 0, 2, 2, 0 ]
+                            , [ 4, 0, 0, 4 ]
+                            , [ 8, 0, 8, 0 ]
+                            ]
+
+                        actual =
+                            collapseRight (initFromRows beforeCollapse)
+                    in
+                        Expect.equal expected (rows actual)
+            ]
+        , describe "collapseLeft"
+            [ test "it collapses all rows to the left" <|
+                \_ ->
+                    let
+                        expected =
+                            [ [ 2, 0, 0, 0 ]
+                            , [ 4, 0, 0, 0 ]
+                            , [ 8, 0, 0, 0 ]
+                            , [ 16, 0, 0, 0 ]
+                            ]
+
+                        beforeCollapse =
+                            [ [ 0, 2, 0, 0 ]
+                            , [ 0, 2, 2, 0 ]
+                            , [ 4, 0, 0, 4 ]
+                            , [ 8, 0, 8, 0 ]
+                            ]
+
+                        actual =
+                            collapseLeft (initFromRows beforeCollapse)
+                    in
+                        Expect.equal expected (rows actual)
+            ]
+        , describe "collapseDown"
+            [ test "it collapses all the rows down" <|
+                \_ ->
+                    let
+                        expected =
+                            [ [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 2, 4, 8, 16 ]
+                            ]
+
+                        beforeCollapse =
+                            [ [ 0, 0, 4, 8 ]
+                            , [ 2, 2, 0, 0 ]
+                            , [ 0, 2, 0, 8 ]
+                            , [ 0, 0, 4, 0 ]
+                            ]
+
+                        actual =
+                            collapseDown (initFromRows beforeCollapse)
+                    in
+                        Expect.equal expected (rows actual)
+            ]
+        , describe "collapseUp"
+            [ test "it collapses all the rows up" <|
+                \_ ->
+                    let
+                        expected =
+                            [ [ 2, 4, 8, 16 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            ]
+
+                        beforeCollapse =
+                            [ [ 0, 0, 4, 8 ]
+                            , [ 2, 2, 0, 0 ]
+                            , [ 0, 2, 0, 8 ]
+                            , [ 0, 0, 4, 0 ]
+                            ]
+
+                        actual =
+                            collapseUp (initFromRows beforeCollapse)
+                    in
+                        Expect.equal expected (rows actual)
+            ]
         ]
