@@ -121,11 +121,11 @@ newRandomCell board =
     let
         twoOrFour =
             Random.map <|
-                \bool ->
-                    if bool then
-                        2
-                    else
+                \num ->
+                    if num == 0 then
                         4
+                    else
+                        2
 
         availablePiece index =
             List.drop index (Board.availableCells board)
@@ -140,7 +140,7 @@ newRandomCell board =
                     (List.length <| Board.availableCells board)
                         - 1
             )
-            (twoOrFour Random.bool)
+            (twoOrFour <| Random.int 0 3)
 
 
 view : Model -> Html Msg
