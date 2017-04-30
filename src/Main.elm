@@ -3,6 +3,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Keyboard
+import Random
 import Board exposing (..)
 
 
@@ -24,14 +25,10 @@ type alias Model =
 init : ( Model, Cmd Msg )
 init =
     let
-        rows =
-            [ [ 0, 0, 0, 0 ]
-            , [ 0, 2, 0, 0 ]
-            , [ 0, 0, 4, 0 ]
-            , [ 0, 0, 0, 0 ]
-            ]
+        board =
+            Board.init
     in
-        ( { board = Board.initFromRows rows }, Cmd.none )
+        ( { board = board }, Random.generate SetUpBoard <| Random.pair (newRandomCell board) (newRandomCell board) )
 
 
 type Direction
@@ -42,13 +39,31 @@ type Direction
 
 
 type Msg
-    = Collapse Direction
+    = SetUpBoard ( ( Int, Int, Int ), ( Int, Int, Int ) )
+    | PlaceNewCell ( Int, Int, Int )
+    | Collapse Direction
     | InvalidKeyPress
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        SetUpBoard ( cell1, cell2 ) ->
+            let
+                newBoard =
+                    model.board
+                        |> Board.replaceCell cell1
+                        |> Board.replaceCell cell2
+            in
+                ( { model | board = newBoard }, Cmd.none )
+
+        PlaceNewCell cell ->
+            let
+                newBoard =
+                    model.board |> Board.replaceCell cell
+            in
+                ( { model | board = newBoard }, Cmd.none )
+
         Collapse direction ->
             let
                 newModel =
@@ -65,7 +80,7 @@ update msg model =
                         Left ->
                             { model | board = Board.collapseLeft model.board }
             in
-                ( newModel, Cmd.none )
+                ( newModel, Random.generate PlaceNewCell (newRandomCell newModel.board) )
 
         InvalidKeyPress ->
             ( model, Cmd.none )
@@ -99,6 +114,33 @@ subscriptions model =
                 else
                     InvalidKeyPress
             )
+
+
+newRandomCell : Board -> Random.Generator ( Int, Int, Int )
+newRandomCell board =
+    let
+        twoOrFour =
+            Random.map <|
+                \bool ->
+                    if bool then
+                        2
+                    else
+                        4
+
+        availablePiece index =
+            List.drop index (Board.availableCells board)
+                |> List.take 1
+                |> List.head
+                |> Maybe.withDefault ( 9, 9 )
+    in
+        Random.map2
+            (\( x, y ) value -> ( x, y, value ))
+            (Random.map availablePiece <|
+                Random.int 0 <|
+                    (List.length <| Board.availableCells board)
+                        - 1
+            )
+            (twoOrFour Random.bool)
 
 
 view : Model -> Html Msg

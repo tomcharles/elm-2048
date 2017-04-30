@@ -9,6 +9,8 @@ module Board
         , collapseLeft
         , collapseDown
         , collapseUp
+        , replaceCell
+        , availableCells
         )
 
 import Matrix exposing (..)
@@ -102,3 +104,43 @@ collapseUp (Board matrix) =
         |> initUnsafe
         |> rotateLeft
         |> initFromMatrix
+
+
+replaceCell : ( Int, Int, Int ) -> Board -> Board
+replaceCell newCell board =
+    case newCell of
+        ( x, y, value ) ->
+            initFromRows <|
+                List.indexedMap
+                    (\ri row ->
+                        if ri == x then
+                            List.indexedMap
+                                (\ci column ->
+                                    if ci == y then
+                                        value
+                                    else
+                                        column
+                                )
+                                row
+                        else
+                            row
+                    )
+                    (rows board)
+
+
+availableCells : Board -> List ( Int, Int )
+availableCells board =
+    List.filterMap identity <|
+        List.concatMap identity <|
+            List.indexedMap
+                (\ri row ->
+                    List.indexedMap
+                        (\ci cell ->
+                            if cell == 0 then
+                                Just ( ri, ci )
+                            else
+                                Nothing
+                        )
+                        row
+                )
+                (rows board)
