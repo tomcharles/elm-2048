@@ -194,6 +194,20 @@ all =
                             collapseDown (initFromRows beforeCollapse)
                     in
                         Expect.equal expected (rows actual)
+            , test "it does not flip when numbers are both already on bottom" <|
+                \_ ->
+                    let
+                        expected =
+                            [ [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 2, 0, 0 ]
+                            , [ 0, 4, 0, 0 ]
+                            ]
+
+                        actual =
+                            collapseDown (initFromRows expected)
+                    in
+                        Expect.equal expected (rows actual)
             ]
         , describe "collapseUp"
             [ test "it collapses all the rows up" <|

@@ -76,6 +76,7 @@ collapseLeft : Board -> Board
 collapseLeft board =
     board
         |> rows
+        |> List.map List.reverse
         |> List.map collapseRow
         |> List.map List.reverse
         |> initFromRows
@@ -84,12 +85,11 @@ collapseLeft board =
 collapseDown : Board -> Board
 collapseDown (Board matrix) =
     matrix
-        |> rotateRight
+        |> rotateLeft
         |> unwrap
         |> List.map collapseRow
-        |> List.map List.reverse
         |> initUnsafe
-        |> rotateLeft
+        |> rotateRight
         |> initFromMatrix
 
 
