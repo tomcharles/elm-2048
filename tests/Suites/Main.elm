@@ -106,6 +106,40 @@ all =
                             update msg (initialModel initialRows)
                     in
                         Expect.equal expected (Board.rows actual.board)
+            , test "it spawns a new cell when the board is collapsable" <|
+                \_ ->
+                    let
+                        msg =
+                            Collapse Up
+
+                        initialRows =
+                            [ [ 4, 8, 4, 2 ]
+                            , [ 4, 8, 0, 0 ]
+                            , [ 4, 0, 0, 2 ]
+                            , [ 2, 0, 4, 0 ]
+                            ]
+
+                        ( _, cmd ) =
+                            update msg (initialModel initialRows)
+                    in
+                        Expect.notEqual Cmd.none cmd
+            , test "it does not span a new cell when the board is not collapsable" <|
+                \_ ->
+                    let
+                        msg =
+                            Collapse Up
+
+                        initialRows =
+                            [ [ 4, 8, 4, 2 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            , [ 0, 0, 0, 0 ]
+                            ]
+
+                        ( _, cmd ) =
+                            update msg (initialModel initialRows)
+                    in
+                        Expect.equal Cmd.none cmd
             ]
         ]
 

@@ -79,8 +79,14 @@ update msg model =
 
                         Left ->
                             { model | board = Board.collapseLeft model.board }
+
+                newCellCmd =
+                    if newModel.board == model.board then
+                        Cmd.none
+                    else
+                        Random.generate PlaceNewCell (newRandomCell newModel.board)
             in
-                ( newModel, Random.generate PlaceNewCell (newRandomCell newModel.board) )
+                ( newModel, newCellCmd )
 
         InvalidKeyPress ->
             ( model, Cmd.none )
@@ -140,7 +146,7 @@ newRandomCell board =
                     (List.length <| Board.availableCells board)
                         - 1
             )
-            (twoOrFour <| Random.int 0 3)
+            (twoOrFour <| Random.int 0 4)
 
 
 view : Model -> Html Msg
