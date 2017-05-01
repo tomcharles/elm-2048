@@ -1,6 +1,7 @@
 module Board
     exposing
         ( Board
+        , Cell
         , init
         , initFromRows
         , collapseRow
@@ -13,47 +14,59 @@ module Board
         , availableCells
         )
 
+import Tuple exposing (second, mapSecond)
 import Matrix exposing (..)
 
 
 type Board
-    = Board (Matrix Int)
+    = Board (Matrix ( Int, Int ))
+
+
+type alias Cell =
+    { id : Int
+    , row : Int
+    , column : Int
+    , value : Int
+    }
 
 
 init : Board
 init =
-    Board (Matrix.initWithDefault 4 4 0)
+    Board (Matrix.initWithDefault 4 4 ( 0, 0 ))
 
 
-initFromRows : List (List Int) -> Board
+initFromRows : List (List ( Int, Int )) -> Board
 initFromRows rows =
     Board (Matrix.initUnsafe rows)
 
 
-initFromMatrix : Matrix Int -> Board
+initFromMatrix : Matrix ( Int, Int ) -> Board
 initFromMatrix matrix =
     Board matrix
 
 
-rows : Board -> List (List Int)
+rows : Board -> List (List ( Int, Int ))
 rows (Board matrix) =
     Matrix.unwrap matrix
 
 
-collapseRow : List Int -> List Int
+collapseRow : List ( Int, Int ) -> List ( Int, Int )
 collapseRow row =
     let
+        double x =
+            mapSecond ((*) 2) x
+
         collapse row =
             case row of
                 a :: b :: c :: d :: [] ->
-                    if a == b && c == d then
-                        [ 0, 0, a * 2, c * 2 ]
-                    else if a == b then
-                        [ 0, a * 2, c, d ]
-                    else if c == d then
-                        [ 0, a, b, c * 2 ]
-                    else if b == c then
-                        [ 0, a, b * 2, d ]
+                    if second a == second b && second c == second d then
+                        [ ( 0, 0 ), ( 0, 0 ), double a, double c ]
+                    else if second a == second b then
+                        [ ( 0, 0 ), double a, c, d ]
+                    else if second c == second d then
+                        [ ( 0, 0 ), a, b, double c ]
+                    else if second b == second c then
+                        [ ( 0, 0 ), a, double b, d ]
                     else
                         row
 
@@ -61,7 +74,7 @@ collapseRow row =
                     row
     in
         row
-            |> List.partition ((==) 0)
+            |> List.partition ((==) 0 << Tuple.second)
             |> uncurry List.append
             |> collapse
 
@@ -106,26 +119,24 @@ collapseUp (Board matrix) =
         |> initFromMatrix
 
 
-replaceCell : ( Int, Int, Int ) -> Board -> Board
-replaceCell newCell board =
-    case newCell of
-        ( x, y, value ) ->
-            initFromRows <|
-                List.indexedMap
-                    (\ri row ->
-                        if ri == x then
-                            List.indexedMap
-                                (\ci column ->
-                                    if ci == y then
-                                        value
-                                    else
-                                        column
-                                )
-                                row
-                        else
-                            row
-                    )
-                    (rows board)
+replaceCell : Cell -> Board -> Board
+replaceCell { id, row, column, value } board =
+    initFromRows <|
+        List.indexedMap
+            (\ri r ->
+                if ri == row then
+                    List.indexedMap
+                        (\ci c ->
+                            if ci == column then
+                                ( id, value )
+                            else
+                                c
+                        )
+                        r
+                else
+                    r
+            )
+            (rows board)
 
 
 availableCells : Board -> List ( Int, Int )
@@ -136,7 +147,7 @@ availableCells board =
                 (\ri row ->
                     List.indexedMap
                         (\ci cell ->
-                            if cell == 0 then
+                            if second cell == 0 then
                                 Just ( ri, ci )
                             else
                                 Nothing

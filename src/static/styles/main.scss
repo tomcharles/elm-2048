@@ -18,26 +18,12 @@ body {
   padding: 10px;
 }
 
-.GameOver {
-  position: absolute;
-  font-size: 100px;
-  width: 600px;
-  height: 600px;
-  background-color: red;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items:center;
-  background-color: #BBADA0;
-  opacity: 0.8;
-  color: #FFFFFF; 
-}
-
 .Row {
   display: flex;
 }
 
 .Cell {
+  position: absolute;
   border-radius: 5px;
   height: 140px;
   width: 140px;
@@ -48,6 +34,7 @@ body {
   font-size: 62px;
   font-weight: 600;
   user-select: none;
+  transition: transform 500ms;
 }
 
 .Cell0 {

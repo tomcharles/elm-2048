@@ -2,8 +2,10 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Keyed
 import Keyboard
 import Random
+import Tuple exposing (first, second)
 import Board exposing (..)
 
 
@@ -19,6 +21,7 @@ main =
 
 type alias Model =
     { board : Board
+    , nextId : Int
     }
 
 
@@ -28,7 +31,7 @@ init =
         board =
             Board.init
     in
-        ( { board = board }, Random.generate SetUpBoard <| Random.pair (newRandomCell board) (newRandomCell board) )
+        ( { board = board, nextId = 2 }, Random.generate SetUpBoard <| Random.pair (newRandomCell board) (newRandomCell board) )
 
 
 type Direction
@@ -39,8 +42,8 @@ type Direction
 
 
 type Msg
-    = SetUpBoard ( ( Int, Int, Int ), ( Int, Int, Int ) )
-    | PlaceNewCell ( Int, Int, Int )
+    = SetUpBoard ( Cell, Cell )
+    | PlaceNewCell Cell
     | Collapse Direction
     | InvalidKeyPress
 
@@ -52,17 +55,17 @@ update msg model =
             let
                 newBoard =
                     model.board
-                        |> Board.replaceCell cell1
-                        |> Board.replaceCell cell2
+                        |> Board.replaceCell { cell1 | id = 0 }
+                        |> Board.replaceCell { cell2 | id = 1 }
             in
                 ( { model | board = newBoard }, Cmd.none )
 
         PlaceNewCell cell ->
             let
                 newBoard =
-                    model.board |> Board.replaceCell cell
+                    model.board |> Board.replaceCell { cell | id = model.nextId }
             in
-                ( { model | board = newBoard }, Cmd.none )
+                ( { model | board = newBoard, nextId = model.nextId + 1 }, Cmd.none )
 
         Collapse direction ->
             let
@@ -122,7 +125,7 @@ subscriptions model =
             )
 
 
-newRandomCell : Board -> Random.Generator ( Int, Int, Int )
+newRandomCell : Board -> Random.Generator Cell
 newRandomCell board =
     let
         twoOrFour =
@@ -140,7 +143,7 @@ newRandomCell board =
                 |> Maybe.withDefault ( 9, 9 )
     in
         Random.map2
-            (\( x, y ) value -> ( x, y, value ))
+            (\( x, y ) value -> Cell 0 x y value)
             (Random.map availablePiece <|
                 Random.int 0 <|
                     (List.length <| Board.availableCells board)
@@ -153,21 +156,34 @@ view : Model -> Html Msg
 view model =
     let
         rows =
-            List.map boardRow (Board.rows model.board)
+            List.indexedMap boardRow (Board.rows model.board)
     in
         div [ class "Container" ]
             [ div [ class "Board" ] rows ]
 
 
-boardRow : List Int -> Html Msg
-boardRow row =
+boardRow : Int -> List ( Int, Int ) -> Html Msg
+boardRow index row =
     let
         cells =
-            List.map boardCell row
+            List.indexedMap (boardCell index) row
     in
         div [ class "Row" ] cells
 
 
-boardCell : Int -> Html Msg
-boardCell value =
-    div [ class ("Cell Cell" ++ toString value) ] [ text (toString value) ]
+boardCell : Int -> Int -> ( Int, Int ) -> Html Msg
+boardCell columnIndex rowIndex cell =
+    -- Html.Keyed.node "div"
+    --     [ class ("Cell Cell" ++ toString (second cell))
+    --     , style
+    --         [ ( "transform", "translate(" ++ toString (rowIndex * 150) ++ "px," ++ toString (columnIndex * 150) ++ "px)" )
+    --         ]
+    --     ]
+    --     [ ( toString <| first cell, text (toString (second cell)) ) ]
+    div
+        [ class ("Cell Cell" ++ toString (second cell))
+        , style
+            [ ( "transform", "translate(" ++ toString (rowIndex * 150) ++ "px," ++ toString (columnIndex * 150) ++ "px)" )
+            ]
+        ]
+        [ text (toString (second cell)) ]

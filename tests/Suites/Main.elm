@@ -146,4 +146,4 @@ all =
 
 initialModel : List (List Int) -> Model
 initialModel rows =
-    { board = Board.initFromRows rows }
+    { board = Board.initFromRows rows, nextId = 0 }
