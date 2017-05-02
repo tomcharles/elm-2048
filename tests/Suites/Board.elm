@@ -109,6 +109,26 @@ all =
                             collapseRow expected
                     in
                         Expect.equal expected actual
+            , test "it collapses last two when row ends with three of the same number" <|
+                \_ ->
+                    let
+                        expected =
+                            [ 0, 0, 4, 8 ]
+
+                        actual =
+                            collapseRow [ 0, 4, 4, 4 ]
+                    in
+                        Expect.equal expected actual
+            , test "it collapses the middle two when the row begins with three of the same number and ends with a different number" <|
+                \_ ->
+                    let
+                        expected =
+                            [ 0, 4, 8, 8 ]
+
+                        actual =
+                            collapseRow [ 4, 4, 4, 8 ]
+                    in
+                        Expect.equal expected actual
             ]
         , describe "rows"
             [ test "it returns board as a list of lists" <|

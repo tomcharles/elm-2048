@@ -48,12 +48,12 @@ collapseRow row =
                 a :: b :: c :: d :: [] ->
                     if a == b && c == d then
                         [ 0, 0, a * 2, c * 2 ]
-                    else if a == b then
-                        [ 0, a * 2, c, d ]
                     else if c == d then
                         [ 0, a, b, c * 2 ]
                     else if b == c then
                         [ 0, a, b * 2, d ]
+                    else if a == b then
+                        [ 0, a * 2, c, d ]
                     else
                         row
 
